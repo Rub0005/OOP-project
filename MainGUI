@@ -1,0 +1,329 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class MainGUI extends JFrame {
+    private Company company;
+    private JTable tripTable;
+    private JTextField searchField;
+
+    public MainGUI(Company company) {
+        this.company = company;
+
+        // Set up the JFrame
+        setTitle("Travel Company Application");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Set background color to (0, 150, 214)
+        Color backgroundColor = new Color(0, 150, 214);
+        getContentPane().setBackground(backgroundColor);
+
+        // Create a label to display the company name
+        JLabel companyNameLabel = new JLabel("Welcome to " + company.getName());
+        companyNameLabel.setBounds(50, 20, 200, 30);
+        companyNameLabel.setForeground(Color.WHITE); // Set text color to white
+        add(companyNameLabel);
+
+        // Create a button to view trips
+        JButton viewTripsButton = new JButton("View Trips");
+        viewTripsButton.setBounds(50, 70, 100, 30);
+        // Set button color to rgb(0, 111, 214)
+        Color buttonColor = new Color(0, 111, 214);
+        viewTripsButton.setBackground(buttonColor);
+        viewTripsButton.setForeground(Color.WHITE); // Set text color to white
+        viewTripsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                displayTrips();
+            }
+        });
+        add(viewTripsButton);
+
+        // Create a text field for search
+        searchField = new JTextField();
+        searchField.setBounds(450, 70, 200, 30);
+        add(searchField);
+
+        // Create a button to search trips
+        JButton searchButton = new JButton("Search");
+        searchButton.setBounds(650, 70, 100, 30);
+        searchButton.setBackground(buttonColor);
+        searchButton.setForeground(Color.WHITE);
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchTrips();
+            }
+        });
+        add(searchButton);
+
+        // Create a button to add trip
+        JButton addTripButton = new JButton("Add Trip");
+        addTripButton.setBounds(150, 70, 100, 30);
+        addTripButton.setBackground(buttonColor);
+        addTripButton.setForeground(Color.WHITE);
+        addTripButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addTrip();
+            }
+        });
+        add(addTripButton);
+
+        // Create a button to delay trip
+        JButton delayTripButton = new JButton("Delay Trip");
+        delayTripButton.setBounds(250, 70, 100, 30);
+        delayTripButton.setBackground(buttonColor);
+        delayTripButton.setForeground(Color.WHITE);
+        delayTripButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                delayTrip();
+            }
+        });
+        add(delayTripButton);
+
+        // Create a button to delete trip
+        JButton deleteTripButton = new JButton("Delete Trip");
+        deleteTripButton.setBounds(350, 70, 100, 30);
+        deleteTripButton.setBackground(buttonColor);
+        deleteTripButton.setForeground(Color.WHITE);
+        deleteTripButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteTrip();
+            }
+        });
+        add(deleteTripButton);
+
+        // Set layout
+        setLayout(null);
+    }
+
+    private void displayTrips() {
+        // Create a table model
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
+        model.addColumn("Airplane");
+        model.addColumn("From");
+        model.addColumn("To");
+        model.addColumn("Departure");
+        model.addColumn("Arrival");
+
+        // Populate the table model with trips
+        for (Trip trip : company.getTrips()) {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+            model.addRow(new Object[]{
+                    trip.getId(),
+                    trip.getAirplane(),
+                    trip.getTown_from(),
+                    trip.getTown_to(),
+                    trip.getTime_out() + " " + timeFormat.format(new Date()),
+                    trip.getTime_in() + " " + timeFormat.format(new Date())
+            });
+        }
+
+        // Create the table with the model
+        tripTable = new JTable(model);
+        // Set table color to rgb(0, 111, 214)
+        Color tableColor = new Color(0, 111, 214);
+        tripTable.setBackground(tableColor);
+        tripTable.setForeground(Color.WHITE); // Set text color to white
+
+        // Show the table in a scroll pane
+        JScrollPane scrollPane = new JScrollPane(tripTable);
+        scrollPane.setBounds(50, 150, 700, 400);
+        add(scrollPane);
+
+        // Add listener for row clicks
+        tripTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int row = tripTable.rowAtPoint(evt.getPoint());
+                int tripId = (int) tripTable.getValueAt(row, 0);
+                displayPassengers(tripId);
+            }
+        });
+
+        // Refresh the frame to show the table
+        revalidate();
+        repaint();
+    }
+
+    private void displayPassengers(int tripId) {
+        Trip trip = company.getById(tripId);
+        List<Passenger> passengers = trip.getPassengers();
+
+        // Create a dialog to display passenger details
+        JDialog dialog = new JDialog(this, "Passengers for Trip ID: " + tripId, true);
+        dialog.setSize(400, 300);
+        dialog.setLayout(new BorderLayout());
+
+        // Create a table model
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
+        model.addColumn("Name");
+        model.addColumn("Surname");
+        model.addColumn("Phone");
+        model.addColumn("Nation");
+        model.addColumn("Gender");
+
+        // Populate the table model with passenger details
+        for (Passenger passenger : passengers) {
+            model.addRow(new Object[]{
+                    passenger.getId(),
+                    passenger.getName(),
+                    passenger.getSurname(),
+                    passenger.getPhone(),
+                    passenger.getNation(),
+                    passenger.getGender()
+            });
+        }
+
+        // Create the table with the model
+        JTable passengerTable = new JTable(model);
+
+        // Show the table in a scroll pane
+        JScrollPane scrollPane = new JScrollPane(passengerTable);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+
+        // Display the dialog
+        dialog.setVisible(true);
+    }
+
+    private void searchTrips() {
+        String searchText = searchField.getText().trim().toLowerCase();
+
+        // Create a table model
+        DefaultTableModel model = new DefaultTableModel();
+        model.addColumn("ID");
+        model.addColumn("Airplane");
+        model.addColumn("From");
+        model.addColumn("To");
+        model.addColumn("Departure");
+        model.addColumn("Arrival");
+
+        // Populate the table model with matching trips
+        for (Trip trip : company.getTrips()) {
+            if (String.valueOf(trip.getId()).contains(searchText) ||
+                    trip.getAirplane().toLowerCase().contains(searchText) ||
+                    trip.getTown_from().toLowerCase().contains(searchText) ||
+                    trip.getTown_to().toLowerCase().contains(searchText) ||
+                    trip.getTime_out().contains(searchText) ||
+                    trip.getTime_in().contains(searchText)) {
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+                model.addRow(new Object[]{
+                        trip.getId(),
+                        trip.getAirplane(),
+                        trip.getTown_from(),
+                        trip.getTown_to(),
+                        trip.getTime_out() + " " + timeFormat.format(new Date()),
+                        trip.getTime_in() + " " + timeFormat.format(new Date())
+                });
+            }
+        }
+
+        // Update the table model
+        tripTable.setModel(model);
+        tripTable.repaint();
+    }
+
+    private void addTrip() {
+        // Create a dialog to input trip details
+        JTextField airplaneField = new JTextField();
+        JTextField fromField = new JTextField();
+        JTextField toField = new JTextField();
+        JTextField departureField = new JTextField();
+        JTextField arrivalField = new JTextField();
+
+        JPanel panel = new JPanel(new GridLayout(5, 2));
+        panel.add(new JLabel("Airplane:"));
+        panel.add(airplaneField);
+        panel.add(new JLabel("From:"));
+        panel.add(fromField);
+        panel.add(new JLabel("To:"));
+        panel.add(toField);
+        panel.add(new JLabel("Departure (dd/MM/yyyy HH:mm):"));
+        panel.add(departureField);
+        panel.add(new JLabel("Arrival (dd/MM/yyyy HH:mm):"));
+        panel.add(arrivalField);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Add New Trip", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String airplane = airplaneField.getText();
+            String from = fromField.getText();
+            String to = toField.getText();
+            String departure = departureField.getText();
+            String arrival = arrivalField.getText();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            try {
+                Date departureDate = dateFormat.parse(departure);
+                Date arrivalDate = dateFormat.parse(arrival);
+                company.addTrip(airplane, from, to, departureDate, arrivalDate);
+                JOptionPane.showMessageDialog(null, "Thank you!, your request has been sent to our administrators");
+                displayTrips(); // Refresh the displayed trips
+            } catch (ParseException e) {
+                JOptionPane.showMessageDialog(null, "Invalid date format. Please use dd/MM/yyyy HH:mm.");
+            }
+        }
+    }
+
+    private void delayTrip() {
+        // Get the selected row from the table
+        int selectedRow = tripTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Please select a trip to delay.");
+            return;
+        }
+
+        // Get the ID of the selected trip
+        int tripId = (int) tripTable.getValueAt(selectedRow, 0);
+
+        // Create a dialog to input the delay duration
+        JTextField delayField = new JTextField();
+        JPanel panel = new JPanel(new GridLayout(1, 2));
+        panel.add(new JLabel("Delay duration (days):"));
+        panel.add(delayField);
+
+        int result = JOptionPane.showConfirmDialog(null, panel, "Delay Trip", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                int delayDays = Integer.parseInt(delayField.getText());
+                company.delayTrip(tripId, delayDays);
+                JOptionPane.showMessageDialog(null, "Thank you!, your request has been sent to our administrators");
+                displayTrips(); // Refresh the displayed trips
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid input. Please enter a valid number of days.");
+            }
+        }
+    }
+
+    private void deleteTrip() {
+        // Get the selected row from the table
+        int selectedRow = tripTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Please select a trip to delete.");
+            return;
+        }
+
+        // Get the ID of the selected trip
+        int tripId = (int) tripTable.getValueAt(selectedRow, 0);
+
+        // Confirm deletion
+        int option = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this trip?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        if (option == JOptionPane.YES_OPTION) {
+            company.deleteTrip(tripId);
+            JOptionPane.showMessageDialog(null, "Thank you!, your request has been sent to our administrators");
+            displayTrips(); // Refresh the displayed trips
+        }
+    }
+}
