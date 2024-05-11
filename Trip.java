@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Trip {
@@ -5,7 +6,7 @@ public class Trip {
     private int id;
 
 
-    private List<Passenger> passengers;
+    private ArrayList<Passenger> passengers;
 
 
     private String airplane;
@@ -20,7 +21,7 @@ public class Trip {
     private String time_in;
     private Company company;
 
-    public Trip(int id, List<Passenger> passengers, String airplane, String town_from, String town_to, String time_out, String time_in, Company company) {
+    public Trip(int id, ArrayList<Passenger> passengers, String airplane, String town_from, String town_to, String time_out, String time_in, Company company) {
         this.id = id;
         this.passengers = passengers;
         this.airplane = airplane;
@@ -43,7 +44,7 @@ public class Trip {
         return passengers;
     }
 
-    public void setPassengers(List<Passenger> passengers) {
+    public void setPassengers(ArrayList<Passenger> passengers) {
         this.passengers = passengers;
     }
 
@@ -95,10 +96,73 @@ public class Trip {
         this.company = company;
     }
 
-    Trip getById(int id){}//retrieves trip by id
-    List<Trip> getAll() {}//outputs all trips
-    void delete(int tripId){}deletes trip by its id
-    List<Trip> getTripsFrom(String place){} returns trips flying from a given place
-    List<Trip> getTripsTo(String place){} returns trips flying to a given place
+    @Override
+    public String toString() {
+        return "Trip{" +
+                "id=" + id +
+                ", passengers=" + passengers +
+                ", airplane='" + airplane + '\'' +
+                ", town_from='" + town_from + '\'' +
+                ", town_to='" + town_to + '\'' +
+                ", time_out='" + time_out + '\'' +
+                ", time_in='" + time_in + '\'' +
+                ", company=" + company +
+                '}';
+    }
 
+    public void addPassenger(String name, String surname, String phone, String nation, Gender gender, Address address) {
+        Passenger passenger = new Passenger(passengers.size(), name, surname, phone, nation, gender, address);
+        passengers.add(passenger);
+    }
+
+    public void removePassenger(int id) {
+        if (id >= 0 && id < passengers.size()) {
+            passengers.remove(id);
+        } else {
+            System.out.println("wrong id");
+        }
+    }
+
+    public List<Passenger> searchByName(String name, String surname) {
+        ArrayList<Passenger> byName = new ArrayList<>();
+        for (Passenger p : passengers) {
+            if (p.getName().equals(name) && p.getSurname().equals(surname)) {
+                byName.add(p);
+            }
+        }
+        return byName;
+    }
+
+    public List<Passenger> searchByNation(String nation) {
+        ArrayList<Passenger> byNation = new ArrayList<>();
+        for (Passenger p : passengers) {
+            if (p.getNation().equals(nation)) {
+                byNation.add(p);
+            }
+        }
+        return byNation;
+    }
+
+    public List<Passenger> searchByName(String name){
+        ArrayList<Passenger> byName = new ArrayList<>();
+        for (Passenger p : passengers) {
+            if (p.getName().equals(name)) {
+                byName.add(p);
+            }
+        }
+        return byName;
+    }
+
+    public List<Passenger> searchBySurname(String surname){
+        ArrayList<Passenger> bySurname = new ArrayList<>();
+        for (Passenger p : passengers) {
+            if (p.getSurname().equals(surname)) {
+                bySurname.add(p);
+            }
+        }
+        return bySurname;
+    }
+
+    public void addPassenger(Passenger passenger) {
+    }
 }
