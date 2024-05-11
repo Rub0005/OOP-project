@@ -1,15 +1,16 @@
+import java.util.Date;
 import java.util.List;
 
 public class Passenger {
 
-      private int id;
+    private int id;
 
-     private String name;
-     private String surname;
-      private String phone;
-     private String nation;
+    private String name;
+    private String surname;
+    private String phone;
+    private String nation;
     private Gender gender;
-     private Address address;
+    private Address address;
 
     public Passenger(int id, String name, String surname, String phone, String nation, Gender gender, Address address) {
         this.id = id;
@@ -76,9 +77,12 @@ public class Passenger {
     public void setAddress(Address address) {
         this.address = address;
     }
-      Passenger getById(int id){}
-       List<Passenger> getAll() {}
-        List<Passenger> getPassengersFrom(String country){}
-        List<Passenger> searchByName(){} // outputs all passengers with a given name
-        List<Passenger> searchBySurname(){} // outputs all passengers with a given surname
-        void addPassenger(String name, String surname, String phone,
+
+    public void setBirthDate(Date passengerBirthDate) {
+    }
+
+    public Date getBirthDate() {
+        return null;
+    }
+}
+
